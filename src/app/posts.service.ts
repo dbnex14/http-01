@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 
 import { Post } from './post.model';
-import { Subject } from 'rxjs';
+import { Subject, throwError } from 'rxjs';
 
 @Injectable({providedIn: 'root'})
 export class PostsService {
@@ -72,28 +72,33 @@ export class PostsService {
                 // Angular http client get method is generic so instead of that, we can use that by
                 // adding above generic portion in get() method.
                 //.pipe(map((responseData: {[key: string]: Post }) => {
-                .pipe(map((responseData) => {
-                    const postArray: Post[] = [];
-                    // So we are accessing the key in array (which is the Firebase cryptic string) 
-                    // and therefore we access data under it.  So, we also have to create a new JS
-                    // object from it and use spread (...) operator to pull out all the key/value 
-                    // pair of that nested object, so for example title: 'Test' etc, and we also
-                    // add another parameter id which is the key Firebase provide to us.
-                    // That key is perfect candidate for id and it is guaranteed unique as it is 
-                    // generated for us by Firebase.  for that reason, I want to keep this id so 
-                    // that I can uniquelly id a post for example in case I want to delete it.
-                    // It is good practice to guard this though and check if 
-                    // responseDAta.hasOwnProperty(key) before accessing this to make sure we are 
-                    // not accesing property of some prototype. 
-                    for (const key in responseData) {
-                        if (responseData.hasOwnProperty(key)){
-                            postArray.push({ ...responseData[key], id: key });
+                .pipe(
+                    map((responseData) => {
+                        const postArray: Post[] = [];
+                        // So we are accessing the key in array (which is the Firebase cryptic string) 
+                        // and therefore we access data under it.  So, we also have to create a new JS
+                        // object from it and use spread (...) operator to pull out all the key/value 
+                        // pair of that nested object, so for example title: 'Test' etc, and we also
+                        // add another parameter id which is the key Firebase provide to us.
+                        // That key is perfect candidate for id and it is guaranteed unique as it is 
+                        // generated for us by Firebase.  for that reason, I want to keep this id so 
+                        // that I can uniquelly id a post for example in case I want to delete it.
+                        // It is good practice to guard this though and check if 
+                        // responseDAta.hasOwnProperty(key) before accessing this to make sure we are 
+                        // not accesing property of some prototype. 
+                        for (const key in responseData) {
+                            if (responseData.hasOwnProperty(key)){
+                                postArray.push({ ...responseData[key], id: key });
+                            }
                         }
-                    }
-                    // and now we forward this postArray data converted into an array to our 
-                    // subscribe method below in posts param.
-                    return postArray;
-                })
+                        // and now we forward this postArray data converted into an array to our 
+                        // subscribe method below in posts param.
+                        return postArray;
+                    }),
+                    catchError(errorResponse => {
+                        // Send to analytics or whatever you want
+                        return throwError(errorResponse);
+                    })
             );
     }
 
