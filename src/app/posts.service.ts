@@ -3,9 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
 import { Post } from './post.model';
+import { Subject } from 'rxjs';
 
 @Injectable({providedIn: 'root'})
 export class PostsService {
+    errorSubject = new Subject<string>();
+
     constructor(private http: HttpClient) {}
 
     createAndStorePost(title: string, content: string) {
@@ -33,6 +36,8 @@ export class PostsService {
             )
             .subscribe(responseData => {
                 console.log(responseData);
+            }, error => {
+                this.errorSubject.next(error.message);
             });
     }
 
