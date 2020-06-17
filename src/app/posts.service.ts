@@ -91,4 +91,9 @@ export class PostsService {
                 })
             );
     }
+
+    deletePosts() {
+        // since we are deleting all posts, we use same url as above
+        return this.http.delete('https://ng-complete-guide-2ffa0.firebaseio.com/posts.json');
+    }
 }
