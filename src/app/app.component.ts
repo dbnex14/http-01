@@ -54,6 +54,12 @@ export class AppComponent implements OnInit, OnDestroy {
       // do something to handle error and provide better user interface
       this.error = error.message;
       console.log(error);
+      this.isFetching = false;
     });
+  }
+
+  onHandleError() {
+    // get rid of error when button clicked
+    this.error = null;
   }
 }
