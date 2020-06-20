@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, catchError } from 'rxjs/operators';
 
 import { Post } from './post.model';
@@ -56,7 +56,13 @@ export class PostsService {
         // they reach the subscribe() method.
         return this.http
             .get<{[key: string]: Post }>(
-                'https://ng-complete-guide-2ffa0.firebaseio.com/posts.json')
+                'https://ng-complete-guide-2ffa0.firebaseio.com/posts.json',
+                {
+                    // here we can add headers, as many as we want using 
+                    // new instance of HttpHeaders class and passing it JS
+                    // object using java-script notation {} like:
+                    "headers": new HttpHeaders({'Custom-Header': "Hello Dino"})
+                })
                 // Therefore the operator I need here is the map() operator which we have to 
                 // import from 'rxjs' package and map operator converts some input data into 
                 // some other format output data, in this case we need to convert response 
