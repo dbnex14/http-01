@@ -55,7 +55,8 @@ export class PostsService {
         // allows you to funnel your observable data through multiple operators before
         // they reach the subscribe() method.
         return this.http
-            .get<{[key: string]: Post }>('https://ng-complete-guide-2ffa0.firebaseio.com/posts.json')
+            .get<{[key: string]: Post }>(
+                'https://ng-complete-guide-2ffa0.firebaseio.com/posts.json')
                 // Therefore the operator I need here is the map() operator which we have to 
                 // import from 'rxjs' package and map operator converts some input data into 
                 // some other format output data, in this case we need to convert response 
