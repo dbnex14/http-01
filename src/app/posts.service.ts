@@ -80,7 +80,8 @@ export class PostsService {
                     // object using java-script notation {} like:
                     headers: new HttpHeaders({'Custom-Header': "Hello Dino"}),
                     //"params": new HttpParams().set('print', 'pretty')
-                    params: searchParams
+                    params: searchParams,
+                    responseType: 'json' //default is json so this is not needed
                 })
                 // Therefore the operator I need here is the map() operator which we have to 
                 // import from 'rxjs' package and map operator converts some input data into 
@@ -133,13 +134,21 @@ export class PostsService {
         return this.http
             .delete('https://ng-complete-guide-2ffa0.firebaseio.com/posts.json', 
             {
-                observe: 'events'
+                observe: 'events',
+                responseType: 'text'
             })
             .pipe(
                 tap(event => {
                     console.log(event);
                     if (event.type === HttpEventType.Sent) {
-                        console.log("event type 0 means Sent");
+                        // here we dont have body but here we could do 
+                        // something in the UI to let user know we sent
+                        // successfully and we are now waiting for the
+                        // response.
+                    }
+                    if (event.type === HttpEventType.Response) {
+                        // If I got event of type Response, log its body
+                        console.log(event.body);
                     }
                 })
             );
