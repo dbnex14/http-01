@@ -5,6 +5,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { AuthInterceptorService } from './auth-interceptor.service';
+import { LoggingInterceptorService } from './logging-interceptor.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -16,6 +17,11 @@ import { AuthInterceptorService } from './auth-interceptor.service';
     {
       provide: HTTP_INTERCEPTORS, // what indentifier to use
       useClass: AuthInterceptorService, // which interceptor class
+      multi: true // can we use multiple interceptors under this identifier
+    }, 
+    {
+      provide: HTTP_INTERCEPTORS, // what indentifier to use
+      useClass: LoggingInterceptorService, // which interceptor class
       multi: true // can we use multiple interceptors under this identifier
     }
   ],
