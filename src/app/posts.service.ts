@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map, catchError } from 'rxjs/operators';
+import { HttpClient, HttpHeaders, HttpParams, HttpEventType } from '@angular/common/http';
+import { map, catchError, tap } from 'rxjs/operators';
 
 import { Post } from './post.model';
 import { Subject, throwError } from 'rxjs';
@@ -32,7 +32,12 @@ export class PostsService {
         this.http
             .post<{name: string}>(
                 'https://ng-complete-guide-2ffa0.firebaseio.com/posts.json',
-                postData
+                postData,
+                {
+                    // User observe to let Angular not to extract only body
+                    // but rather return entire response.  'body' is default.
+                    observe: 'response'
+                }
             )
             .subscribe(responseData => {
                 console.log(responseData);
@@ -42,6 +47,18 @@ export class PostsService {
     }
 
     fetchPosts() {
+        // Now, if you wanted to set multiple params, you could simply 
+        // create a new variable searchParams for example and create 
+        // your new HttpParams object there and then keep append to it.
+        // But note that it is immutable so it has to be a variable 
+        // (so use let) and you have to assign to it the appended value.  
+        // So, apend() returns new HttpParams object and you store it 
+        // into the variable.  We can also add non-firebase supported 
+        // params like 'custom', 'key' below which even if not supported 
+        // can be sent, it will not cause any harm.
+        let searchParams = new HttpParams();
+        searchParams = searchParams.append('print', 'pretty');
+        searchParams = searchParams.append('custom', 'key');
         // Send Http request and same like in case of post, you have to subscribe to get
         // as well.  No subscription, no request!
         // Transforming data is something we could also do inside the subscribe() of get() 
@@ -61,7 +78,9 @@ export class PostsService {
                     // here we can add headers, as many as we want using 
                     // new instance of HttpHeaders class and passing it JS
                     // object using java-script notation {} like:
-                    "headers": new HttpHeaders({'Custom-Header': "Hello Dino"})
+                    headers: new HttpHeaders({'Custom-Header': "Hello Dino"}),
+                    //"params": new HttpParams().set('print', 'pretty')
+                    params: searchParams
                 })
                 // Therefore the operator I need here is the map() operator which we have to 
                 // import from 'rxjs' package and map operator converts some input data into 
@@ -111,6 +130,18 @@ export class PostsService {
 
     deletePosts() {
         // since we are deleting all posts, we use same url as above
-        return this.http.delete('https://ng-complete-guide-2ffa0.firebaseio.com/posts.json');
+        return this.http
+            .delete('https://ng-complete-guide-2ffa0.firebaseio.com/posts.json', 
+            {
+                observe: 'events'
+            })
+            .pipe(
+                tap(event => {
+                    console.log(event);
+                    if (event.type === HttpEventType.Sent) {
+                        console.log("event type 0 means Sent");
+                    }
+                })
+            );
     }
 }
